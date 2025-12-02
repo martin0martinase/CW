@@ -23,9 +23,29 @@ struct Dot: Draw {
 }
 int main()
 {
+  using topit::IDraw
   using topit::p_t;
-  IDraw * p = new Dot(10, 10);
-  IDraw
+  IDraw* shps[3] = {};
+  try {
+    shps[0] = new Dot(0, 0);
+    shps[1] = new Dot(5, 7);
+    shps[2] = new Dot(-5, -2);
+    /* TODO:
+     [1]достать все точки из фигуры
+     [2]прочитать щераничивающий прям.
+     [3]пожготовить (canvas) нужного размера
+     - заполнить canvas '.'
+     [4]нарисовать canvas все точки (которые достали из фигур)
+     - будем рисовать '#'
+     [5]вывести полотно на экран
+    */
+  } catch (...) {
+    err = 2;
+    std::cerr << "Bad drawing\n";
+  delete shps[0];
+  delete shps[1];
+  delete shps[2];
+  return err;
 }
 bool topit::operator==(p_t a, p_t b){
   return a.x == b.x && a.y == b.y;
