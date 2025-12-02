@@ -21,10 +21,21 @@ struct Dot: Draw {
   p_t next(p_t) const override;
   p_t d;
 };
+// ДЗ - добавить еще 2-3 фигуры, отрезки диагональ придумать свою фиг
+// расширить заданный массив точками из очередной фигуры
+// extended
 size_t points(const IDraw& d, p_t ** pts, size_t s);
+
+// ныйти мин и макс по каждой коорд среди точек и сформ фрейм
 f_t frame(const p_t* pts, size_t s);
+
+// построит canvas (из frmae получит пол-во столбцов и строчек) 
 char * canvas(f_t fr, char fill);
+
+// коорд точки перевести в коорд в двум массиве
 void paint(char * cnv, f_t fr, p_t p, char fill);
+
+// вывод двумерного массива на основе размеров, опр фреймом
 void flush(std::ostream& os, const char* cnv, f_t fr);
 int main()
 {
