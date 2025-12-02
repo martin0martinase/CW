@@ -20,17 +20,28 @@ struct Dot: Draw {
   p_t begin() const override;
   p_t next(p_t) const override;
   p_t d;
-}
+};
+size_t points(const IDraw& d, p_t ** pts, size_t s);
+f_t frame(const p_t* pts, size_t s);
 int main()
 {
   using topit::IDraw
-  using topit::p_t;
+  using topit::Dot;
+  using topit::f_t;
+  int err = 0;
   IDraw* shps[3] = {};
+  p_t * pts == nullptr;
+  size_t s = 0;
   try {
     shps[0] = new Dot(0, 0);
     shps[1] = new Dot(5, 7);
     shps[2] = new Dot(-5, -2);
-    /* TODO:
+    // TODO:
+    for (size_t i = 0, i < 3; ++i){
+      s += points(*(shps[0]), &pts, s);
+    }
+    f_t fr = frame(pts, s);
+    /*
      [1]достать все точки из фигуры
      [2]прочитать щераничивающий прям.
      [3]пожготовить (canvas) нужного размера
@@ -42,6 +53,7 @@ int main()
   } catch (...) {
     err = 2;
     std::cerr << "Bad drawing\n";
+  delete [] pts;
   delete shps[0];
   delete shps[1];
   delete shps[2];
