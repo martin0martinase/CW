@@ -24,9 +24,8 @@ struct Dot: Draw {
 int main()
 {
   using topit::p_t;
-  p_t a{1, 0}, b{1,0};\
-  std::cout << (a == b) << "\n";
-  std::cout << !(a == b) << "\n";
+  IDraw * p = new Dot(10, 10);
+  IDraw
 }
 bool topit::operator==(p_t a, p_t b){
   return a.x == b.x && a.y == b.y;
@@ -37,7 +36,11 @@ bool topit::operator!=(p_t a, p_t b){
 topit::p_t topit::Dot::begin() const{
   return d;
 }
-topit::Dot():
+topit::Dot::Dot(p_t dd):
+  IDraw(),
+  d{dd}
+{}
+topit::Dot::Dot(int x, int y):
   IDraw(),
   d{x, y}
 {}
