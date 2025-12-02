@@ -24,11 +24,14 @@ struct Dot: Draw {
 size_t points(const IDraw& d, p_t ** pts, size_t s);
 f_t frame(const p_t* pts, size_t s);
 char * canvas(f_t fr, char fill);
+void paint(char * cnv, f_t fr, p_t p, char fill);
+void flush(std::ostream& os, const char* cnv, f_t fr);
 int main()
 {
   using topit::IDraw
   using topit::Dot;
   using topit::f_t;
+  using topit::p_t;
   int err = 0;
   IDraw* shps[3] = {};
   p_t * pts == nullptr;
@@ -43,6 +46,10 @@ int main()
     }
     f_t fr = frame(pts, s);
     char  * cnv = canvas(fr, '.');
+    for (size_t i = 0; i < s; ++i){
+      paint(cnv, fr, pts[i], '#');
+    }
+    flush(std::out, cnv, fr);
     /*
      [1]достать все точки из фигуры
      [2]прочитать щераничивающий прям.
