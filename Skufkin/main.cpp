@@ -12,8 +12,12 @@ namespace topit {
 struct IDraw {
   virtual p_t begin() const = 0; //"= 0" - чисто виртуальный метод
   virtual p_t next(p_t) const = 0; // в один момент next должен вернуть begin
-  virtual ~IDraw();
+  virtual ~IDraw() = default;
 };
+struct Dot: Draw {
+  p_t begin() const override;
+  p_t next(p_t) const override;
+}
 int main()
 {
   using topit::p_t;
