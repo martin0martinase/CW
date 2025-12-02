@@ -23,6 +23,7 @@ struct Dot: Draw {
 };
 size_t points(const IDraw& d, p_t ** pts, size_t s);
 f_t frame(const p_t* pts, size_t s);
+char * canvas(f_t fr, char fill);
 int main()
 {
   using topit::IDraw
@@ -41,6 +42,7 @@ int main()
       s += points(*(shps[0]), &pts, s);
     }
     f_t fr = frame(pts, s);
+    char  * cnv = canvas(fr, '.');
     /*
      [1]достать все точки из фигуры
      [2]прочитать щераничивающий прям.
@@ -50,6 +52,7 @@ int main()
      - будем рисовать '#'
      [5]вывести полотно на экран
     */
+    delete [] cnv;
   } catch (...) {
     err = 2;
     std::cerr << "Bad drawing\n";
