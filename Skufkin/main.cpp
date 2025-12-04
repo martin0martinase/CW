@@ -2,58 +2,65 @@
 // ВАЖНО!!! - мы пока не знаем ка присунуть фигуру в программу
 
 namespace topit {
-  struct p_t {
-     int x, y;
+    struct p_t {
+       int x, y;
+    };
+    bool operator==(p_t, p_t);
+    bool operator!=(p_t, p_t);
+    struct f_t {p_t aa, bb; };
+  }
+  struct IDraw {
+    virtual p_t begin() const = 0;
+    virtual p_t next(p_t) const = 0;
+    virtual ~IDraw() = default;
   };
-  bool operator==(p_t, p_t);
-  bool operator!=(p_t, p_t);
-  struct f_t {p_t aa, bb; };
+  struct Dot: Draw {
+    Dot(int x, int y);
+    explisit Dot(p_t dd);
+    p_t begin() const override;
+    p_t next(p_t) const override;
+    p_t d;
+  };
+  struct VerticalLine : IDraw {
+    VerticalLine(p_t start, p_t end);
+    p_t start, end;
+    p_t begin() const override;
+    p_t next(p_t) const override;
+  };
+  struct HorizontalLine : IDraw {
+    HorizontalLine(p_t start, p_t end);
+    p_t start, end;
+    p_t begin() const override;
+    p_t next(p_t) const override;
+  };
+  void extend(p_t **pts, size_t s, p_t p);
+  size_t points(const IDraw& d, p_t ** pts, size_t s);
+
+  f_t frame(const p_t* pts, size_t s);
+
+  size_t rows(f_t fr);
+  size_t cols(f_t fr);
+
+
+  char * canvas(f_t fr, char fill 
+  void paint(char * cnv, f_t fr, p_t p, char fill);
+
+  void flush(std::ostream& os, const char* cnv, f_t fr);
 }
-struct IDraw {
-  virtual p_t begin() const = 0; //"= 0" - чисто виртуальный метод
-  virtual p_t next(p_t) const = 0; // в один момент next должен вернуть begin
-  virtual ~IDraw() = default;
-};
-struct Dot: Draw {
-  Dot(int x, int y);
-  exlisit Dot(p_t dd);
-  p_t begin() const override;
-  p_t next(p_t) const override;
-  p_t d;
-};
-// ДЗ - добавить еще 2-3 фигуры, отрезки диагональ придумать свою фиг
-// расширить заданный массив точками из очередной фигуры
-// extended
-size_t points(const IDraw& d, p_t ** pts, size_t s);
-
-// ныйти мин и макс по каждой коорд среди точек и сформ фрейм
-f_t frame(const p_t* pts, size_t s);
-
-// построит canvas (из frmae получит пол-во столбцов и строчек) 
-char * canvas(f_t fr, char fill);
-
-// коорд точки перевести в коорд в двум массиве
-void paint(char * cnv, f_t fr, p_t p, char fill);
-
-// вывод двумерного массива на основе размеров, опр фреймом
-void flush(std::ostream& os, const char* cnv, f_t fr);
 int main()
 {
   using topit::IDraw
-  using topit::Dot;
-  using topit::f_t;
-  using topit::p_t;
+  using namespace topIT;
+  topIT::IDraw *shapes[3] = {};
+  p_t *pts = nullptr;
   int err = 0;
-  IDraw* shps[3] = {};
-  p_t * pts == nullptr;
   size_t s = 0;
   try {
     shps[0] = new Dot(0, 0);
-    shps[1] = new Dot(5, 7);
-    shps[2] = new Dot(-5, -2);
-    // TODO:
+    shps[1] = new VerticalLine({1, 1}, {1, 13});
+    shps[2] = new HorizontalLine({5, 5}, {17, 5});
     for (size_t i = 0, i < 3; ++i){
-      s += points(*(shps[0]), &pts, s);
+      s += points(*(shps[i]), std::addressof(pts), s);
     }
     f_t fr = frame(pts, s);
     char  * cnv = canvas(fr, '.');
@@ -61,25 +68,19 @@ int main()
       paint(cnv, fr, pts[i], '#');
     }
     flush(std::out, cnv, fr);
-    /*
-     [1]достать все точки из фигуры
-     [2]прочитать щераничивающий прям.
-     [3]пожготовить (canvas) нужного размера
-     - заполнить canvas '.'
-     [4]нарисовать canvas все точки (которые достали из фигур)
-     - будем рисовать '#'
-     [5]вывести полотно на экран
-    */
     delete [] cnv;
   } catch (...) {
     err = 2;
     std::cerr << "Bad drawing\n";
+  }
   delete [] pts;
-  delete shps[0];
-  delete shps[1];
-  delete shps[2];
+  for (size_t i = 0; i < 3; ++i) {
+    delete shps[i];
+  }
   return err;
 }
+topIT::Dot::Dot(int x, int y) : IDraw(), d{x, y} {}
+topIT::Dot::Dot(p_t dd) : IDraw(), d{dd} {}
 bool topit::operator==(p_t a, p_t b){
   return a.x == b.x && a.y == b.y;
 }
@@ -89,17 +90,100 @@ bool topit::operator!=(p_t a, p_t b){
 topit::p_t topit::Dot::begin() const{
   return d;
 }
-topit::Dot::Dot(p_t dd):
-  IDraw(),
-  d{dd}
-{}
-topit::Dot::Dot(int x, int y):
-  IDraw(),
-  d{x, y}
-{}
-topit::p_t topit::Dot::next(p_t prev) const {
-  if (prev != begin()){
-    throw std::logic_error("bad impl");
+topIT::p_t topIT::Dot::next(p_t prev) const {
+  if (prev != begin()) {
+    throw std::logic_error("bad input");
   }
   return d;
+}
+void topIT::extend(p_t **pts, size_t s, p_t p) {
+  p_t *e = new p_t[s + 1];
+  for (size_t i = 0; i < s; ++i) {
+    e[i] = (*pts)[i];
+  }
+  e[s] = p;
+  delete[] *pts;
+  *pts = e;
+}
+size_t topIT::points(const IDraw &d, p_t **pts, size_t s) {
+  size_t r = 1;
+  p_t p = d.begin();
+  extend(pts, s, p);
+  while (d.next(p) != d.begin()) {
+    p = d.next(p);
+    extend(pts, s + r, p);
+    ++r;
+  }
+  return r;
+}
+topIT::f_t topIT::frame(const p_t *pts, size_t s) {
+  if (!s) {
+    throw std::logic_error("No points");
+  }
+  int minx = pts[0].x, maxx = minx;
+  int miny = pts[0].x, maxy = miny;
+  for (size_t i = 1; i < s; ++i) {
+    minx = std::min(minx, pts[i].x);
+    miny = std::min(miny, pts[i].y);
+    maxx = std::max(maxx, pts[i].x);
+    maxy = std::max(maxy, pts[i].y);
+  }
+  p_t aa = {minx, miny};
+  p_t bb = {maxx, maxy};
+  return {aa, bb};
+}
+size_t topIT::cols(f_t fr) {
+  return fr.bb.x - fr.aa.x + 1;
+}
+size_t topIT::rows(f_t fr) {
+  return fr.bb.y - fr.aa.y + 1;
+}
+char *topIT::canvas(f_t fr, char fill) {
+  char *canv = new char[rows(fr) * cols(fr)];
+  for (size_t i = 0; i < rows(fr) * cols(fr); ++i) {
+    canv[i] = fill;
+  }
+  return canv;
+}
+void topIT::paint(char *cnv, f_t fr, p_t p, char fill) {
+  size_t dy = fr.bb.y - p.y;
+  size_t dx = p.x - fr.aa.x;
+  cnv[dy * cols(fr) + dx] = fill;
+}
+void topIT::flush(std::ostream &os, const char *cnv, f_t fr) {
+  for (size_t i = 0; i < rows(fr); ++i) {
+    for (size_t j = 0; j < cols(fr); ++j) {
+      os << cnv[i * cols(fr) + j];
+    }
+    os << '\n';
+  }
+}
+topIT::VerticalLine::VerticalLine(p_t start, p_t end)
+    : IDraw(), start(start), end(end) {}
+topIT::p_t topIT::VerticalLine::begin() const {
+  return start;
+}
+topIT::p_t topIT::VerticalLine::next(p_t prev) const {
+  if (prev.y > end.y || prev.x != start.x || prev.y < start.y) {
+    throw std::logic_error("bad input");
+  }
+  if (prev == end) {
+    return begin();
+  }
+  return p_t{prev.x, prev.y + 1};
+}
+
+topIT::HorizontalLine::HorizontalLine(p_t start, p_t end)
+    : IDraw(), start(start), end(end) {}
+topIT::p_t topIT::HorizontalLine::begin() const {
+  return start;
+  }
+topIT::p_t topIT::HorizontalLine::next(p_t prev) const {
+  if (prev.x > end.x || prev.y != start.y || prev.x < start.x) {
+    throw std::logic_error("bad input");
+  }
+  if (prev == end) {
+    return begin();
+  }
+  return p_t{prev.x + 1, prev.y};
 }
