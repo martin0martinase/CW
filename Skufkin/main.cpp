@@ -3,6 +3,9 @@
 int main() {
   using topit::IDraw;
   using topit::Dot;
+  using topIT::HorizontalLine;
+  using topIT::DiagLine;
+  using topIT::VerticalLine;
   using topit::f_t;
   using topit::p_t;
   int err = 0;
